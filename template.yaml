@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  sample-app
+  sample-sam-app
 
-  Sample SAM Template for sample-app
+  Sample SAM Template for sample-sam-app
 
 Globals:
   Function:
@@ -17,6 +17,8 @@ Resources:
       CodeUri: function/
       Handler: hello_world.lambda_handler
       Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
+      Timeout: 30
       Architectures:
         - x86_64
       Events:
@@ -32,6 +34,8 @@ Resources:
       CodeUri: function/
       Handler: simple_response.lambda_handler
       Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
+      Timeout: 30
       Architectures:
         - x86_64
       Events:
@@ -41,14 +45,31 @@ Resources:
             Path: /simple_response
             Method: get
 
+  SimpleDynamodbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: simple_dynamodb.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
+      Timeout: 30
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /simple_dynamodb
+            Method: get
+
   UserMessageTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: "Id"
+        - AttributeName: "Seq"
           AttributeType: "N"
       KeySchema:
-        - AttributeName: "Id"
+        - AttributeName: "Seq"
           KeyType: "HASH"
       TableName: "UserMessage"
       ProvisionedThroughput:
