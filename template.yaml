@@ -25,6 +25,7 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+
   SimpleResponseFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -39,3 +40,17 @@ Resources:
           Properties:
             Path: /simple_response
             Method: get
+
+  UserMessageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "N"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: "HASH"
+      TableName: "UserMessage"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
