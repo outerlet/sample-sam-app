@@ -14,8 +14,8 @@ Resources:
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
+      CodeUri: function/
+      Handler: hello_world.lambda_handler
       Runtime: python3.9
       Architectures:
         - x86_64
@@ -29,8 +29,8 @@ Resources:
   SimpleResponseFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: simple_response/
-      Handler: app.lambda_handler
+      CodeUri: function/
+      Handler: simple_response.lambda_handler
       Runtime: python3.9
       Architectures:
         - x86_64
