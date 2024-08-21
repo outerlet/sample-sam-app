@@ -32,3 +32,14 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+[local]
+[local.global.parameters]
+stack_name = "sample-sam-app-local"
+
+[local.deploy.parameters]
+resolve_s3 = true
+s3_prefix = "sample-sam-app-local"
+region = "ap-northeast-3"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

@@ -1,11 +1,27 @@
 from typing import Optional
+from dataclasses import dataclass
 import json
 import boto3
 
 TABLE_NAME = 'UserMessage'
 
 
-def get_record_count(client: boto3.client) -> Optional[int]:
+@dataclass
+class UserMessage:
+    sender: str
+    receiver: str
+    message: str
+
+    def __init__(self, event: dict):
+        self.sender = event['sender']
+        self.receiver = event['receiver']
+        self.message = event['message']
+
+    def __str__(self):
+        return f'sender = {self.sender}, receiver = {self.receiver}, message = {self.message}'
+
+
+def get_table_count(client: boto3.client) -> Optional[int]:
     """概要
     UserMessageテーブルの行数を返す。テーブルへのアクセスが失敗したらNoneを返す
     Seq の最大値でないのは、scanのシンタックスを失念した＆実装に時間をかけたくないから
@@ -23,27 +39,25 @@ def get_record_count(client: boto3.client) -> Optional[int]:
         return None
 
 
-def put_message(client: boto3.client, seq: int, sender: str, receiver: str, message: str) -> bool:
+def put_message(client: boto3.client, seq: int, user_message: UserMessage) -> bool:
     """概要
     UserMessageテーブルに1行レコードを追加する。処理の成否は真偽値で返す
     """
-    print(f'put_message: seq = {seq}, sender = {sender}, receiver = {receiver}, message = {message}')
-
     try:
         client.put_item(
             TableName='UserMessage',
             Item={
-                'Seq': {
+                'seq': {
                     'N': str(seq)
                 },
-                'Sender': {
-                    'S': sender
+                'sender': {
+                    'S': user_message.sender
                 },
                 'receiver': {
-                    'S': receiver
+                    'S': user_message.receiver
                 },
                 'message': {
-                    'S': message
+                    'S': user_message.message
                 },
             }
         )
@@ -57,11 +71,8 @@ def put_message(client: boto3.client, seq: int, sender: str, receiver: str, mess
 
 def lambda_handler(event, context):
     try:
-        sender = event['sender']
-        receiver = event['receiver']
-        message = event['message']
-
-        print(f'Arguments: sender = {sender}, receiver = {receiver}, message = {message}')
+        user_message = UserMessage(event)
+        print(user_message)
     except KeyError as ke:
         # 本来はロガーなどを経由して CloudWatch とかで検知できるようにすべき
         print(ke)
@@ -74,14 +85,14 @@ def lambda_handler(event, context):
 
     client = boto3.client('dynamodb')
 
-    count = get_record_count(client)
+    count = get_table_count(client)
 
     if count is None:
-        new_count = 1
+        seq = 1
     else:
-        new_count = count + 1
+        seq = count + 1
 
-    is_success = put_message(client, new_count, sender, receiver, message)
+    is_success = put_message(client, seq, user_message)
     if is_success:
         status_code = 200
         message = 'User message is recorded successfully.'

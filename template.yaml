@@ -11,6 +11,39 @@ Globals:
     MemorySize: 128
 
 Resources:
+  # DynamoDB: UserMessage table
+  UserMessageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: seq
+          AttributeType: N
+      KeySchema:
+        - AttributeName: seq
+          KeyType: HASH
+      TableName: UserMessage
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # DynamoDB: Member table
+  MemberTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: seq
+          AttributeType: N
+      KeySchema:
+        - AttributeName: seq
+          KeyType: HASH
+      TableName: Member
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  # Lambda: HelloWorldFunction
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -18,16 +51,10 @@ Resources:
       Handler: hello_world.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
       Architectures:
         - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
 
+  # Lambda: SimpleResponseFunction
   SimpleResponseFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -35,16 +62,10 @@ Resources:
       Handler: simple_response.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
       Architectures:
         - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /simple_response
-            Method: get
 
+  # Lambda: SimpleDynamodbFunction
   SimpleDynamodbFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -52,26 +73,23 @@ Resources:
       Handler: simple_dynamodb.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
+      Architectures:
+        - x86_64
+
+  # Lambda: WorkWithOtherFunction
+  WorkWithOtherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: work_with_other.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api
+        WorkWithOther:
+          Type: DynamoDB
           Properties:
-            Path: /simple_dynamodb
-            Method: get
-
-  UserMessageTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "Seq"
-          AttributeType: "N"
-      KeySchema:
-        - AttributeName: "Seq"
-          KeyType: "HASH"
-      TableName: "UserMessage"
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+            Stream: !GetAtt MemberTable.StreamArn
+            StartingPosition: LATEST
+            Enabled: true
