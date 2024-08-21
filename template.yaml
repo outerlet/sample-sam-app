@@ -11,6 +11,13 @@ Globals:
     MemorySize: 128
 
 Resources:
+  # S3: test-data bucket
+  TestDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicReadWrite
+      BucketName: test-data
+
   # DynamoDB: UserMessage table
   UserMessageTable:
     Type: AWS::DynamoDB::Table
