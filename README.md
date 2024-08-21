@@ -58,7 +58,6 @@ awslocal dynamodb put-item \
 --table-name Member \
 --item '{"seq":{"N":"1"},"name":{"S":"Taro"},"age":{"N":"30"},"sex":{"S":"MALE"}}'
 awslocal dynamodb scan --table-name Member
-awslocal logs describe-log-groups
-awslocal logs describe-log-streams --log-group-name '/aws/lambda/sample-app-SimpleDynamodbFunction-1060c2e1'
-awslocal logs get-log-events --log-group-name '/aws/lambda/sample-app-SimpleDynamodbFunction-1060c2e1' --log-stream-name '2024/08/20/[$LATEST]1e9df5806d0c0143c73481ae7f8e8938'
+awslocal s3 ls s3://test-data
+awslocal s3 cp s3://test-data/member.csv ~/Downloads/member-check.csv
 ```
