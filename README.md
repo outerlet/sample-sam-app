@@ -8,9 +8,9 @@
 - SimpleResponseFunction
   - Receive a number and returns a string.
   - (数値を受け取り、文字列を返すLambda関数)
-- SimpleDynamodbFunction
-  - Receive JSON payload and put one item into 'UserMessage' table.
-  - (JSON形式のペイロードを受け取り、1件のアイテムを UserMessage という DynamoDB テーブルに追加するLambda関数)
+- AddMessageFunction
+  - Receive JSON payload and put one item into 'Message' table.
+  - (JSON形式のペイロードを受け取り、1件のアイテムを Message という DynamoDB テーブルに追加するLambda関数)
 - WorkWithOtherFunction
   - Lambda functions to work with other AWS services(DynamoDB, S3).
   - 他のサービス(DynamoDBやS3)と連携するラムダ関数
@@ -54,21 +54,21 @@ awslocal lambda invoke \
     /tmp/response-simpleresponse.json
 ```
 
-### SimpleDynamodbFunction
+### AddMessageFunction
 
-- Lambda will put one item into DynamoDB table named 'UserMessage'.
-- 実行時に渡したペイロードに応じて、1件の項目を UserMessage という DynamoDB テーブルに追加する関数です
+- Lambda will put one item into DynamoDB table named 'Message'.
+- 実行時に渡したペイロードに応じて、1件の項目を Message という DynamoDB テーブルに追加する関数です
 
 ```bash
 awslocal lambda list-functions
 awslocal lambda get-function --function-name "sample-sam-app-SimpleDynamodbFunction-cdd357d1"
 awslocal lambda invoke \
-    --function-name "sample-sam-app-SimpleDynamodbFunction-cdd357d1" \
+    --function-name "sample-sam-app-local-AddMessageFunction-01e7712a" \
     --payload $(echo '{"sender":"Taro","receiver":"Jiro","message":"Hello, world!!"}' | base64) \
     /tmp/response-dynamodb.json
 ```
 
-### WorkWithOtherFunction
+### UpdateMemberFileFunction
 
 - When put one item into DynamoDB table named 'Member', Lambda will get that item and write to CSV file on S3.
 - Member という DynamoDB テーブルに項目を追加したことをトリガーに、その項目に応じた内容をS3上のCSVファイルに追加する関数です
@@ -78,6 +78,6 @@ awslocal dynamodb put-item \
     --table-name Member \
     --item '{"seq":{"N":"1"},"name":{"S":"Taro"},"age":{"N":"30"},"sex":{"S":"MALE"}}'
 awslocal dynamodb scan --table-name Member
-awslocal s3 ls s3://test-data
-awslocal s3 cp s3://test-data/member.csv ~/Downloads/member-check.csv
+awslocal s3 ls s3://sample-app-bucket
+awslocal s3 cp s3://sample-app-bucket/member.csv ~/Downloads/member-check.csv
 ```

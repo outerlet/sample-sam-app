@@ -1,41 +1,11 @@
-from dataclasses import dataclass
-from enum import Enum
 import json
 import boto3
+from data.member import Member
 
-S3_BUCKET_NAME = 'test-data'
+S3_BUCKET_NAME = 'sample-app-bucket'
 S3_FILE_NAME = 'member.csv'
 TEMP_FILE_NAME = 'member_tmp.csv'
 TEMP_FILE_PATH = f'/tmp/{TEMP_FILE_NAME}'
-
-
-class Sex(Enum):
-    MALE = 0
-    FEMALE = 1
-
-
-@dataclass
-class Member:
-    seq: int
-    name: str
-    age: int
-    sex: Sex
-
-    def __init__(self, record: dict):
-        self.seq = int(record['seq']['N'])
-        self.name = record['name']['S']
-        self.age = int(record['age']['N'])
-
-        sex = record['sex']['S']
-        if sex == Sex.MALE.name:
-            self.sex = Sex.MALE
-        elif sex == Sex.FEMALE.name:
-            self.sex = Sex.FEMALE
-        else:
-            raise ValueError('sex value must be MALE or FEMALE')
-
-    def __str__(self):
-        return f'{self.seq},{self.name},{self.age},{self.sex.name}'
 
 
 def lambda_handler(event, context):
