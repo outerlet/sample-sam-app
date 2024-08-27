@@ -9,7 +9,8 @@ parameter_overrides = [
     "S3BucketName=sample-app-bucket",
     "MessageTableName=Message",
     "MemberTableName=Member",
-    "BookTableStreamArn=arbitrary-arn-name"
+    "LambdaExecutionRoleArn=ARBITRARY-EXECUTION-ROLE-ARN",
+    "BookTableStreamArn=ARBITRARY-DYNAMODB-STREAM-ARN"
 ]
 
 [default.build.parameters]
@@ -46,7 +47,8 @@ parameter_overrides = [
     "S3BucketName=sample-app-bucket",
     "MessageTableName=Message",
     "MemberTableName=Member",
-    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-27T08:04:49.846"
+    "LambdaExecutionRoleArn=arn:aws:iam::000000000000:role/lambda-role",
+    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-27T11:23:08.335"
 ]
 
 [local.deploy.parameters]
