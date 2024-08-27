@@ -19,6 +19,8 @@ Parameters:
     Type: String
   BookTableStreamArn:
     Type: String
+  LambdaExecutionRoleArn:
+    Type: String
 
 Resources:
   # S3: test-data bucket
@@ -67,7 +69,7 @@ Resources:
       CodeUri: function/
       Handler: hello_world.lambda_handler
       Runtime: python3.9
-      Role: arn:aws:iam::000000000000:role/lambda-role
+      Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
 
@@ -78,7 +80,7 @@ Resources:
       CodeUri: function/
       Handler: simple_response.lambda_handler
       Runtime: python3.9
-      Role: arn:aws:iam::000000000000:role/lambda-role
+      Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
 
@@ -89,7 +91,7 @@ Resources:
       CodeUri: function/
       Handler: add_message.lambda_handler
       Runtime: python3.9
-      Role: arn:aws:iam::000000000000:role/lambda-role
+      Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
 
@@ -100,7 +102,7 @@ Resources:
       CodeUri: function/
       Handler: update_member_file.lambda_handler
       Runtime: python3.9
-      Role: arn:aws:iam::000000000000:role/lambda-role
+      Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
       Events:
@@ -118,7 +120,7 @@ Resources:
       CodeUri: function/
       Handler: update_book_file.lambda_handler
       Runtime: python3.9
-      Role: arn:aws:iam::000000000000:role/lambda-role
+      Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
       Events:
