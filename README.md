@@ -10,10 +10,13 @@
   - (数値を受け取り、文字列を返すLambda関数)
 - AddMessageFunction
   - Receive JSON payload and put one item into 'Message' table.
-  - (JSON形式のペイロードを受け取り、1件のアイテムを Message という DynamoDB テーブルに追加するLambda関数)
-- WorkWithOtherFunction
-  - Lambda functions to work with other AWS services(DynamoDB, S3).
-  - 他のサービス(DynamoDBやS3)と連携するラムダ関数
+  - (JSON形式のペイロードを受け取り、1件のアイテムを Message というDynamoDBテーブルに追加するLambda関数)
+- UpdateMemberFileFunction
+  - Lambda functions to work with other AWS services.
+  - 他のAWSサービスと連携するLambda関数
+- UpdateBookFileFunction
+  - Lambda functions to work with other AWS services(DynamoDB table already exists).
+  - 他のAWSサービスと連携するLambda関数(別のアプリなどが作成したDynamoDBテーブルを使用)
 
 ## Deploy LocalStack
 
@@ -49,36 +52,59 @@ awslocal lambda invoke --function-name "sample-sam-app-HelloWorldFunction-93a343
 awslocal lambda list-functions
 awslocal lambda get-function --function-name "sample-sam-app-SimpleResponseFunction-96533490"
 awslocal lambda invoke \
-    --function-name "sample-sam-app-SimpleResponseFunction-96533490" \
-    --payload $(echo '{"number":1}' | base64) \
-    /tmp/response-simpleresponse.json
+  --function-name "sample-sam-app-SimpleResponseFunction-96533490" \
+  --payload $(echo '{"number":1}' | base64) \
+  /tmp/response-simpleresponse.json
 ```
 
 ### AddMessageFunction
 
 - Lambda will put one item into DynamoDB table named 'Message'.
-- 実行時に渡したペイロードに応じて、1件の項目を Message という DynamoDB テーブルに追加する関数です
+- 実行時に渡したペイロードに応じて、1件の項目を Message というDynamoDBテーブルに追加する関数です
 
 ```bash
 awslocal lambda list-functions
 awslocal lambda get-function --function-name "sample-sam-app-SimpleDynamodbFunction-cdd357d1"
 awslocal lambda invoke \
-    --function-name "sample-sam-app-local-AddMessageFunction-01e7712a" \
-    --payload $(echo '{"sender":"Taro","receiver":"Jiro","message":"Hello, world!!"}' | base64) \
-    /tmp/response-dynamodb.json
+  --function-name "sample-sam-app-local-AddMessageFunction-01e7712a" \
+  --payload $(echo '{"sender":"Taro","receiver":"Jiro","message":"Hello, world!!"}' | base64) \
+  /tmp/response-dynamodb.json
 ```
 
 ### UpdateMemberFileFunction
 
 - When put one item into DynamoDB table named 'Member', Lambda will get that item and write to CSV file on S3.
-- Member という DynamoDB テーブルに項目を追加したことをトリガーに、その項目に応じた内容をS3上のCSVファイルに追加する関数です
+- Member というDynamoDBテーブルに項目を追加したことをトリガーに、その項目に応じた内容をS3上のCSVファイルに追加する関数です
 
 ```bash
 awslocal dynamodb put-item \
-    --table-name Member \
-    --item '{"seq":{"N":"1"},"name":{"S":"Taro"},"age":{"N":"30"},"sex":{"S":"MALE"}}'
+  --table-name Member \
+  --item '{"seq":{"N":"1"},"name":{"S":"Taro"},"age":{"N":"30"},"sex":{"S":"MALE"}}'
 awslocal dynamodb scan --table-name Member
 awslocal s3 ls s3://sample-app-bucket
 awslocal s3 cp s3://sample-app-bucket/members.csv ~/Downloads/members-copy.csv
 cat ~/Downloads/members-copy.csv
+```
+
+### UpdateBookFileFunction
+
+- When put one item into DynamoDB table named 'Book', Lambda will get that item and write to CSV file on S3.
+- Book というDynamoDBテーブルに項目を追加したことをトリガーに、その項目に応じた内容をS3上のCSVファイルに追加する関数です
+
+```bash
+# create-table の結果から LatestStreamArn を確認し samconfig.toml の parameter_overrides の BookTableStreamArn 値としてコピー
+awslocal dynamodb create-table \
+  --table-name Book \
+  --attribute-definitions '[{"AttributeName":"seq","AttributeType":"N"}]' \
+  --key-schema '{"AttributeName":"seq","KeyType":"HASH"}' \
+  --provisioned-throughput '{"ReadCapacityUnits": 5,"WriteCapacityUnits": 5}' \
+  --stream-specification '{"StreamEnabled": true,"StreamViewType": "NEW_IMAGE"}'
+awslocal dynamodb list-tables
+awslocal dynamodbstreams describe-stream --stream-arn [any-stream-arn]
+awslocal dynamodb put-item \
+  --table-name Book \
+  --item '{"seq":{"N":"1"},"title":{"S":"書籍のタイトル"},"price":{"N":"3740"},"publisher":{"S":"出版社名"}}'
+awslocal s3 ls s3://sample-app-bucket
+awslocal s3 cp s3://sample-app-bucket/books.csv ~/Downloads/books-copy.csv
+cat ~/Downloads/books-copy.csv
 ```

@@ -20,6 +20,8 @@ Parameters:
   MemberTableName:
     Type: String
     Default: "Member"
+  BookTableStreamArn:
+    Type: String
 
 Resources:
   # S3: test-data bucket
@@ -109,5 +111,23 @@ Resources:
           Type: DynamoDB
           Properties:
             Stream: !GetAtt MemberTable.StreamArn
+            StartingPosition: LATEST
+            Enabled: true
+
+  # Lambda: UpdateBookFileFunction
+  UpdateBookFileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: update_book_file.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
+      Architectures:
+        - x86_64
+      Events:
+        BookTableUpdate:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref BookTableStreamArn
             StartingPosition: LATEST
             Enabled: true

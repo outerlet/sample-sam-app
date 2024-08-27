@@ -5,6 +5,9 @@ version = 0.1
 [default]
 [default.global.parameters]
 stack_name = "sample-sam-app"
+parameter_overrides = [
+    "BookTableStreamArn=arbitrary-arn-name"
+]
 
 [default.build.parameters]
 cached = true
@@ -36,6 +39,9 @@ warm_containers = "EAGER"
 [local]
 [local.global.parameters]
 stack_name = "sample-sam-app-local"
+parameter_overrides = [
+    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-27T06:24:32.053"
+]
 
 [local.deploy.parameters]
 resolve_s3 = true
