@@ -43,4 +43,3 @@ s3_prefix = "sample-sam-app-local"
 region = "ap-northeast-3"
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
-parameter_overrides = "S3BucketName=\"sample-app-bucket\" MessageTableName=\"Message\" MemberTableName=\"Member\""

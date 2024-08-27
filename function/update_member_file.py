@@ -3,8 +3,8 @@ import boto3
 from data.member import Member
 
 S3_BUCKET_NAME = 'sample-app-bucket'
-S3_FILE_NAME = 'member.csv'
-TEMP_FILE_NAME = 'member_tmp.csv'
+S3_FILE_NAME = 'members.csv'
+TEMP_FILE_NAME = 'member_temp.csv'
 TEMP_FILE_PATH = f'/tmp/{TEMP_FILE_NAME}'
 
 

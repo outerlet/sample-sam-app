@@ -79,5 +79,6 @@ awslocal dynamodb put-item \
     --item '{"seq":{"N":"1"},"name":{"S":"Taro"},"age":{"N":"30"},"sex":{"S":"MALE"}}'
 awslocal dynamodb scan --table-name Member
 awslocal s3 ls s3://sample-app-bucket
-awslocal s3 cp s3://sample-app-bucket/member.csv ~/Downloads/member-check.csv
+awslocal s3 cp s3://sample-app-bucket/members.csv ~/Downloads/members-copy.csv
+cat ~/Downloads/members-copy.csv
 ```
