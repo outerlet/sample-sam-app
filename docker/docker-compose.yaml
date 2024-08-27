@@ -1,0 +1,21 @@
+networks:
+  localstack_net01:
+
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: ${LOCALSTACK_DEFAULT_CONTAINER_NAME}
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    hostname: localstack-host
+    ports:
+      - 4566:4566
+    networks:
+      - localstack_net01
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - MAIN_CONTAINER_NAME=${LOCALSTACK_DEFAULT_CONTAINER_NAME}
+      - SERVICES=s3,dynamodb,lambda,logs,cloudformation,iam
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - DEBUG=${DEBUG:-0}
