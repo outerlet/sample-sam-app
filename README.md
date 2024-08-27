@@ -1,5 +1,14 @@
 # sample-sam-app
 
+## ディレクトリ構成
+
+- docker/
+  - docker-compose.yaml　などDocker関連のリソースを配置（する想定）
+- project/
+  - SAMアプリの設定ファイルやテンプレート、Lambdaのソースコードなど
+- README.md
+  - 本テキスト
+
 ## Resource
 
 ### S3 Bucket
@@ -115,6 +124,7 @@ cat ~/Downloads/members-copy.csv
 ### UpdateBookFileFunction
 
 - Book という **既存のDynamoDBテーブル** に項目が追加されたことをトリガーに、その内容に応じたデータをS3上のCSVファイルに追記する関数です
+  - 例示しましたが、 `sam deploy` する前に Book テーブルを Stream 付きで作成する必要があります
 - When put one item into DynamoDB table named 'Book', Lambda will get that item and write to CSV file on S3.
 
 ```bash
