@@ -5,6 +5,12 @@ version = 0.1
 [default]
 [default.global.parameters]
 stack_name = "sample-sam-app"
+parameter_overrides = [
+    "S3BucketName=sample-app-bucket",
+    "MessageTableName=Message",
+    "MemberTableName=Member",
+    "BookTableStreamArn=arbitrary-arn-name"
+]
 
 [default.build.parameters]
 cached = true
@@ -32,3 +38,20 @@ warm_containers = "EAGER"
 
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
+
+[local]
+[local.global.parameters]
+stack_name = "sample-sam-app-local"
+parameter_overrides = [
+    "S3BucketName=sample-app-bucket",
+    "MessageTableName=Message",
+    "MemberTableName=Member",
+    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-27T08:04:49.846"
+]
+
+[local.deploy.parameters]
+resolve_s3 = true
+s3_prefix = "sample-sam-app-local"
+region = "ap-northeast-3"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

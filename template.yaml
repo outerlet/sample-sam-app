@@ -7,10 +7,60 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 30
     MemorySize: 128
 
+Parameters:
+  S3BucketName:
+    Type: String
+  MessageTableName:
+    Type: String
+  MemberTableName:
+    Type: String
+  BookTableStreamArn:
+    Type: String
+
 Resources:
+  # S3: test-data bucket
+  SampleAppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicReadWrite
+      BucketName: !Ref S3BucketName
+
+  # DynamoDB: Message table
+  MessageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: seq
+          AttributeType: N
+      KeySchema:
+        - AttributeName: seq
+          KeyType: HASH
+      TableName: !Ref MessageTableName
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  # DynamoDB: Member table
+  MemberTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: seq
+          AttributeType: N
+      KeySchema:
+        - AttributeName: seq
+          KeyType: HASH
+      TableName: !Ref MemberTableName
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  # Lambda: HelloWorldFunction
   HelloWorldFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -18,16 +68,10 @@ Resources:
       Handler: hello_world.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
       Architectures:
         - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
 
+  # Lambda: SimpleResponseFunction
   SimpleResponseFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -35,43 +79,52 @@ Resources:
       Handler: simple_response.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
       Architectures:
         - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /simple_response
-            Method: get
 
-  SimpleDynamodbFunction:
+  # Lambda: AddMessageFunction
+  AddMessageFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: function/
-      Handler: simple_dynamodb.lambda_handler
+      Handler: add_message.lambda_handler
       Runtime: python3.9
       Role: arn:aws:iam::000000000000:role/lambda-role
-      Timeout: 30
+      Architectures:
+        - x86_64
+
+  # Lambda: UpdateMemberFileFunction
+  UpdateMemberFileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: update_member_file.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
-          Type: Api
+        MemberTableUpdate:
+          Type: DynamoDB
           Properties:
-            Path: /simple_dynamodb
-            Method: get
+            Stream: !GetAtt MemberTable.StreamArn
+            StartingPosition: LATEST
+            Enabled: true
 
-  UserMessageTable:
-    Type: AWS::DynamoDB::Table
+  # Lambda: UpdateBookFileFunction
+  UpdateBookFileFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      AttributeDefinitions:
-        - AttributeName: "Seq"
-          AttributeType: "N"
-      KeySchema:
-        - AttributeName: "Seq"
-          KeyType: "HASH"
-      TableName: "UserMessage"
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      CodeUri: function/
+      Handler: update_book_file.lambda_handler
+      Runtime: python3.9
+      Role: arn:aws:iam::000000000000:role/lambda-role
+      Architectures:
+        - x86_64
+      Events:
+        BookTableUpdate:
+          Type: DynamoDB
+          Properties:
+            Stream: !Ref BookTableStreamArn
+            StartingPosition: LATEST
+            Enabled: true
