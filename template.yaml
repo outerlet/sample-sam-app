@@ -13,13 +13,10 @@ Globals:
 Parameters:
   S3BucketName:
     Type: String
-    Default: "sample-app-bucket"
   MessageTableName:
     Type: String
-    Default: "Message"
   MemberTableName:
     Type: String
-    Default: "Member"
   BookTableStreamArn:
     Type: String
 
