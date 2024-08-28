@@ -48,12 +48,5 @@ parameter_overrides = [
     "MessageTableName=Message",
     "MemberTableName=Member",
     "LambdaExecutionRoleArn=arn:aws:iam::000000000000:role/lambda-role",
-    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-27T11:23:08.335"
+    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-28T04:55:32.393"
 ]
-
-[local.deploy.parameters]
-resolve_s3 = true
-s3_prefix = "sample-sam-app-local"
-region = "ap-northeast-3"
-capabilities = "CAPABILITY_IAM"
-image_repositories = []

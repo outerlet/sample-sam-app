@@ -9,7 +9,7 @@
 - README.md
   - 本テキスト
 
-## Resource
+## リソース
 
 ### S3 Bucket
 
@@ -41,24 +41,52 @@
   - 他のAWSサービスと連携するLambda関数。ただしDynamoDBテーブルはこのSAMアプリのものではなく、別のアプリなどが作成したものを使う
   - Lambda functions to work with other AWS services(DynamoDB table already exists).
 
-## Deploy LocalStack
+## LocalStackへのデプロイ
 
-`sam` command can be replaced by `samlocal` command.
+1. Book という DynamoDB を事前に作成
+2. 1の結果 DynamoDB Streams のARNを確認
+3. 2のARNを samconfigm.toml の local.global.parameters の `parameter_overrides` に含まれる `BookTableStreamArn` にセット
+4. `sam build` または `samlocal build` でビルド
+5. `samlocal deploy` でLocalStackにデプロイ
+
+### Book テーブルの作成と DynamoDB Streams ARNの確認（手順1〜2）
+
+`UpdateBookFileFunction` は `Book` テーブルが存在することが前提ですので、事前に作成しておく必要があります
 
 ```bash
-sam build
-samlocal deploy --guided
+# create-table の結果から LatestStreamArn を確認し samconfig.toml の parameter_overrides の BookTableStreamArn 値としてコピー
+awslocal dynamodb create-table \
+  --table-name Book \
+  --attribute-definitions '[{"AttributeName":"seq","AttributeType":"N"}]' \
+  --key-schema '{"AttributeName":"seq","KeyType":"HASH"}' \
+  --provisioned-throughput '{"ReadCapacityUnits": 5,"WriteCapacityUnits": 5}' \
+  --stream-specification '{"StreamEnabled": true,"StreamViewType": "NEW_IMAGE"}'
+  
+# (補足) ARNを確認するのはこちらでも可
+awslocal dynamodb describe-table --table-name Book
+
+# DynamoDB Stream が有効になっているかの確認
+awslocal dynamodbstreams describe-stream --stream-arn [any-stream-arn]
 ```
 
-## Execution
+### SAMアプリのビルドとデプロイ(手順４〜5)
 
-- `awslocal` command can be replaced by `aws --profile xxxxx --endpoint-url http://localhost:4566`. 
-- Check target function name by `lambda list-functions` before execute `lambda invoke`.
+```bash
+# ビルド時の sam コマンドは samlocal コマンドでも可
+sam build --config-env local --use-contaienr
+
+# デプロイは samlocal
+samlocal deploy --config-env local --guided
+```
+
+## Lambdaの実行
+
+- `awslocal` コマンドは `aws --profile xxxxx --endpoint-url http://localhost:4566` のように、パラメータ付きの `aws` コマンドでも可
+- `lambda invoke` でLambdaを実行する前に `lambda list-functions` コマンドでLambdaの状況を確認
 
 ### HelloWorldFunction
 
 - HTTPステータスコード200とメッセージを返すだけの関数です
-- Lambda will response HTTP status code 200 and message.
 
 ```bash
 # 関数が作成されているか確認
@@ -72,24 +100,23 @@ awslocal lambda invoke --function-name "sample-sam-app-HelloWorldFunction-93a343
 ### SimpleResponseFunction
 
 - 実行時にペイロードで渡した数値に対応するHTTPステータスコードとメッセージを返す関数です
-- Lambda will response some message and HTTP status code according to the number given by payload at request.
+- REST APIとして、GETメソッドで呼び出される想定です
 
 ```bash
 # 関数が作成されているか確認
 awslocal lambda list-functions
 awslocal lambda get-function --function-name "sample-sam-app-SimpleResponseFunction-96533490"
 
-# 適当なペイロードを与えて関数を実行
-awslocal lambda invoke \
-  --function-name "sample-sam-app-SimpleResponseFunction-96533490" \
-  --payload $(echo '{"number":1}' | base64) \
-  /tmp/response-simpleresponse.json
+# REST API ID を確認
+awslocal apigateway get-rest-apis
+
+# cURLのGETパラメータで number を指定して呼び出す
+curl "http://localhost:4566/restapis/<REST-API-ID>/simple_response/_user_request_/simple_response?number=3"
 ```
 
 ### AddMessageFunction
 
 - 実行時に渡したペイロードに応じて、1件の項目を Message というDynamoDBテーブルに追加する関数です
-- Lambda will put one item into DynamoDB table named 'Message'.
 
 ```bash
 # 関数が作成されているか確認
@@ -106,7 +133,6 @@ awslocal lambda invoke \
 ### UpdateMemberFileFunction
 
 - Member というDynamoDBテーブルに項目が追加されたことをトリガーに、その内容に応じたデータをS3上のCSVファイルに追加する関数です
-- When put one item into DynamoDB table named 'Member', Lambda will get that item and write to CSV file on S3.
 
 ```bash
 # put-item で Member にデータを投入
@@ -124,24 +150,8 @@ cat ~/Downloads/members-copy.csv
 ### UpdateBookFileFunction
 
 - Book という **既存のDynamoDBテーブル** に項目が追加されたことをトリガーに、その内容に応じたデータをS3上のCSVファイルに追記する関数です
-  - 例示しましたが、 `sam deploy` する前に Book テーブルを Stream 付きで作成する必要があります
-- When put one item into DynamoDB table named 'Book', Lambda will get that item and write to CSV file on S3.
 
 ```bash
-# create-table の結果から LatestStreamArn を確認し samconfig.toml の parameter_overrides の BookTableStreamArn 値としてコピー
-awslocal dynamodb create-table \
-  --table-name Book \
-  --attribute-definitions '[{"AttributeName":"seq","AttributeType":"N"}]' \
-  --key-schema '{"AttributeName":"seq","KeyType":"HASH"}' \
-  --provisioned-throughput '{"ReadCapacityUnits": 5,"WriteCapacityUnits": 5}' \
-  --stream-specification '{"StreamEnabled": true,"StreamViewType": "NEW_IMAGE"}'
-  
-# (補足) ARNを確認するのはこちらでも可
-awslocal dynamodb describe-table --table-name Book
-
-# DynamoDB Stream が有効になっているかの確認
-awslocal dynamodbstreams describe-stream --stream-arn [any-stream-arn]
-
 # put-item で Book にデータを投入
 awslocal dynamodb put-item \
   --table-name Book \
