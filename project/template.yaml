@@ -23,7 +23,7 @@ Parameters:
     Type: String
 
 Resources:
-  # S3: test-data bucket
+  # S3: 'sample-app-bucket' bucket
   SampleAppBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -83,6 +83,12 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Architectures:
         - x86_64
+      Events:
+        SimpleResponseApiEvent:
+          Type: Api
+          Properties:
+            Method: get
+            Path: /simple_response
 
   # Lambda: AddMessageFunction
   AddMessageFunction:
@@ -130,3 +136,4 @@ Resources:
             Stream: !Ref BookTableStreamArn
             StartingPosition: LATEST
             Enabled: true
+
