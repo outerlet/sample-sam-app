@@ -4,8 +4,12 @@
 
 - docker/
   - docker-compose.yaml　などDocker関連のリソースを配置（する想定）
+  - ここで `docker compose up` すれば LocalStack がデフォルトの設定で起動します
 - project/
-  - SAMアプリの設定ファイルやテンプレート、Lambdaのソースコードなど
+  - SAMアプリを構成する一連のファイル群。設定ファイル、テンプレート、Lambdaのソースコードなど
+  - `samlocal` を実行してSAMアプリをデプロイするのはここで
+- android/
+  - LocalStack にデプロイされた `SimpleResponseFunction` 関数にリクエストをかけられるAndroidアプリのプロジェクトディレクトリ
 - README.md
   - 本テキスト
 
