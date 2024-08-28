@@ -48,5 +48,5 @@ parameter_overrides = [
     "MessageTableName=Message",
     "MemberTableName=Member",
     "LambdaExecutionRoleArn=arn:aws:iam::000000000000:role/lambda-role",
-    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-28T04:55:32.393"
+    "BookTableStreamArn=arn:aws:dynamodb:ap-northeast-3:000000000000:table/Book/stream/2024-08-28T07:47:22.051"
 ]
