@@ -9,8 +9,8 @@ parameter_overrides = [
     "S3BucketName=sample-app-bucket",
     "MessageTableName=Message",
     "MemberTableName=Member",
-    "LambdaExecutionRoleArn=ARBITRARY-EXECUTION-ROLE-ARN",
-    "BookTableStreamArn=ARBITRARY-DYNAMODB-STREAM-ARN"
+    "LambdaExecutionRoleArn=[Lambda関数実行ロール(実環境用)]",
+    "BookTableStreamArn=[既存のBookテーブルに関するDynamoDB StreamsのARN(実環境用)]"
 ]
 
 [default.build.parameters]
@@ -40,6 +40,9 @@ warm_containers = "EAGER"
 [default.local_start_lambda.parameters]
 warm_containers = "EAGER"
 
+# LocalStack にビルド・デプロイする際に適用する値。 samlocal deploy --config-env local とかすると適用される
+# LambdaExecutionRoleArn の値は、AWSのARNフォーマットに合致していれば何でもよいが、実環境で有効な値は使わないこと
+# BookTableStreamArn の値は Book テーブルを作成した後に dynamodb describe-table --table-name Book で確認
 [local]
 [local.global.parameters]
 stack_name = "sample-sam-app-local"

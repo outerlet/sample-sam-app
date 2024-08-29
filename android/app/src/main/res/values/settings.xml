@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        android:usesCleartextTraffic の値。手っ取り早く LocalStack と連携して動かすために true としています
+        セキュリティ的に、本来はVariantごとに設定は切り分けるべきかと思います
+    -->
+    <bool name="uses_clear_text_traffic">true</bool>
+</resources>
