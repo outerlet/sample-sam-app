@@ -48,7 +48,7 @@
 
 ```bash
 # ビルド時の sam コマンドは samlocal コマンドでも可
-sam build --config-env local --use-contaienr
+sam build --config-env local --use-container
 
 # デプロイは samlocal
 samlocal deploy --config-env local --guided
