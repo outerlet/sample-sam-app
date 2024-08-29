@@ -120,20 +120,22 @@ Resources:
             Enabled: true
 
   # Lambda: UpdateBookFileFunction
-  UpdateBookFileFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: function/
-      Handler: update_book_file.lambda_handler
-      Runtime: python3.9
-      Role: !Ref LambdaExecutionRoleArn
-      Architectures:
-        - x86_64
-      Events:
-        BookTableUpdate:
-          Type: DynamoDB
-          Properties:
-            Stream: !Ref BookTableStreamArn
-            StartingPosition: LATEST
-            Enabled: true
+  # Book テーブルを事前に作成しないとエラーになるので、とりあえずコメントアウト
+  # この関数を使用するのに必要な作業はREADMEでご確認ください
+#  UpdateBookFileFunction:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      CodeUri: function/
+#      Handler: update_book_file.lambda_handler
+#      Runtime: python3.9
+#      Role: !Ref LambdaExecutionRoleArn
+#      Architectures:
+#        - x86_64
+#      Events:
+#        BookTableUpdate:
+#          Type: DynamoDB
+#          Properties:
+#            Stream: !Ref BookTableStreamArn
+#            StartingPosition: LATEST
+#            Enabled: true
 

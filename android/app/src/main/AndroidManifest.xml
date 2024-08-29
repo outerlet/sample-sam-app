@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LocalLambdaApp"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="@bool/uses_clear_text_traffic"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"

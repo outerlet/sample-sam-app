@@ -36,12 +36,4 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
-    companion object {
-        // LocalStack が動作しているマシンのIPアドレスを設定
-        private const val LOCALSTACK_HOST_IP_ADDRESS = "127.0.0.1"
-
-        // LocalStack がListenしているポート番号を変更している場合は変更
-        private const val LOCALSTACK_PORT = 4566
-    }
 }
